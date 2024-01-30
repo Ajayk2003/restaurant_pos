@@ -1,0 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+enum FoodCategory {
+  APPETIZER
+  MAIN_COURSE
+  DESSERT
+}
+
+enum FoodType {
+  VEG
+  NON_VEG
+}
+
+model FoodItem {
+  id           Int        @id @default(autoincrement())
+  name         String
+  price        Float
+  imageUrl     String?
+  availability Boolean
+  category     FoodCategory
+  foodType     FoodType
+  isDeleted    Boolean   @default(false)
+  billItems    BillItem[]
+}
+
+model User {
+  id       Int      @id @default(autoincrement())
+  name String 
+  username String @unique
+  password String
+  email    String
+  phone    BigInt
+  isDeleted Boolean   @default(false)
+  bills    Bill[]
+}
+
+model Bill {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  total       Float
+  gst         Float
+  discount    Float
+  netAmount   Float
+  customerName String
+  mobileNumber String
+  billDate    DateTime
+  userId      Int
+  isDeleted   Boolean   @default(false)
+  user        User     @relation(fields: [userId], references: [id])
+  billItems   BillItem[]
+}
+
+model BillItem {
+  id        Int      @id @default(autoincrement())
+  quantity  Int
+  price     Int
+  isDeleted Boolean   @default(false)
+  billId    Int
+  bill      Bill     @relation(fields: [billId], references: [id])
+  foodItemId Int
+  foodItem   FoodItem @relation(fields: [foodItemId], references: [id])
+}
